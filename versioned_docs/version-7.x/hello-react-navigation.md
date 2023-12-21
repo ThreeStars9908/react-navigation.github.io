@@ -36,7 +36,7 @@ npm install @react-navigation/native-stack@next
 
 `createStaticNavigation` is a function that takes the navigator defined earlier and returns a component that can be rendered in the app. It's only called once in the app.
 
-```js
+```js title="Native Stack Example" snack version=7
 // In App.js in a new project
 
 import * as React from 'react';
@@ -74,9 +74,7 @@ export default App;
 
 `NavigationContainer` is a component that manages our navigation tree and contains the [navigation state](navigation-state.md). This component must wrap all the navigators in the app. Usually, we'd render this component at the root of our app, which is usually the component exported from `App.js`.
 
-<samp id="hello-react-navigation" />
-
-```js
+```js title="Native Stack Example" snack version=7
 // In App.js in a new project
 
 import * as React from 'react';
@@ -94,12 +92,18 @@ function HomeScreen() {
 
 const Stack = createNativeStackNavigator();
 
+function RootStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={HomeScreen} />
+    </Stack.Navigator>
+  );
+}
+
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-      </Stack.Navigator>
+      <RootStack />
     </NavigationContainer>
   );
 }
@@ -109,8 +113,6 @@ export default App;
 
 </TabItem>
 </Tabs>
-
-![Basic app using stack navigator](/assets/navigators/stack/basic_stack_nav.png)
 
 If you run this code, you will see a screen with an empty navigation bar and a grey content area containing your `HomeScreen` component (shown above). The styles you see for the navigation bar and the content area are the default configuration for a stack navigator, we'll learn how to configure those later.
 
