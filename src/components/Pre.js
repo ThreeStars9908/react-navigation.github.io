@@ -1,5 +1,6 @@
 import MDXPre from '@theme-original/MDXComponents/Pre';
 import CodeBlock from '@theme-original/CodeBlock';
+import React from 'react';
 
 const peers = {
   'react-native-safe-area-context': '*',
@@ -53,17 +54,18 @@ const versions = {
 
 export default function Pre({
   children,
-  'data-title': title,
+  'data-name': name,
   'data-snack': snack,
   'data-version': version,
   'data-dependencies': deps,
   ...rest
 }) {
   if (snack) {
-    if (typeof children !== 'string') {
+    const code = React.Children.only(children).props.children.trim();
+
+    if (typeof code !== 'string') {
       throw new Error(
-        'Playground pre children must be a string, but received ' +
-          typeof children
+        'Playground code must be a string, but received ' + typeof code
       );
     }
 
@@ -74,7 +76,7 @@ export default function Pre({
     Object.assign(
       dependencies,
       Object.entries(versions[version]).reduce((acc, [key, value]) => {
-        if (children.includes(`from '${key}'`)) {
+        if (code.includes(`from '${key}'`)) {
           if (Array.isArray(value)) {
             const [version, peers] = value;
 
@@ -92,13 +94,13 @@ export default function Pre({
     );
 
     // FIXME: use staging for now since react-navigation fails to build on prod
-    const url = new URL('https://staging-snack.expo.dev/embedded');
+    const url = new URL('https://staging-snack.expo.dev');
 
-    if (title) {
-      url.searchParams.set('name', title);
+    if (name) {
+      url.searchParams.set('name', name);
     }
 
-    url.searchParams.set('code', children);
+    url.searchParams.set('code', code);
     url.searchParams.set(
       'dependencies',
       Object.entries(dependencies)
@@ -108,26 +110,39 @@ export default function Pre({
 
     url.searchParams.set('platform', 'web');
     url.searchParams.set('supportedPlatforms', 'ios,android,web');
-    url.searchParams.set('theme', 'light');
     url.searchParams.set('preview', 'true');
     url.searchParams.set('hideQueryParams', 'true');
 
-    console.log(url.href)
-
     return (
-      <iframe
-        loading="lazy"
-        src={url.href}
-        height="660px"
-        width="100%"
-        frameBorder="0"
-        data-snack-iframe="true"
-        style={{
-          display: 'block',
-          border: '1px solid var(--ifm-table-border-color)',
-          borderRadius: 'var(--ifm-global-radius)',
-        }}
-      ></iframe>
+      <>
+        <MDXPre {...rest}>{children}</MDXPre>
+        <a
+          className="snack-sample-link"
+          data-snack="true"
+          target="_blank"
+          href={url.href}
+        >
+          Try this example on Snack{' '}
+          <svg
+            width="14px"
+            height="14px"
+            viewBox="0 0 16 16"
+            style={{ verticalAlign: '-1px' }}
+          >
+            <g stroke="none" strokeWidth="1" fill="none">
+              <polyline
+                stroke="currentColor"
+                points="8.5 0.5 15.5 0.5 15.5 7.5"
+              />
+              <path d="M8,8 L15.0710678,0.928932188" stroke="currentColor" />
+              <polyline
+                stroke="currentColor"
+                points="9.06944444 3.5 1.5 3.5 1.5 14.5 12.5 14.5 12.5 6.93055556"
+              />
+            </g>
+          </svg>
+        </a>
+      </>
     );
   }
 
