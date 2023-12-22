@@ -406,16 +406,13 @@ function RootStack() {
   return (
     <Stack.Navigator
       initialRouteName="Home"
-      // highlight-start
       screenOptions={{
         headerStyle: { backgroundColor: 'tomato' },
       }}
-      // highlight-end
     >
       <Stack.Screen
         name="Home"
         component={HomeScreen}
-        // highlight-next-line
         options={{ title: 'Overview' }}
       />
       <Stack.Screen name="Details" component={DetailsScreen} />

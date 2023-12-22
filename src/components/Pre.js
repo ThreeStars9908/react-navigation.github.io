@@ -126,10 +126,10 @@ export default function Pre({
     url.searchParams.set('platform', 'web');
     url.searchParams.set('supportedPlatforms', 'ios,android,web');
     url.searchParams.set('preview', 'true');
-    url.searchParams.set('theme', colorMode === 'dark' ? 'dark' : 'light');
     url.searchParams.set('hideQueryParams', 'true');
 
     if (snack === 'embed') {
+      url.searchParams.set('theme', colorMode === 'dark' ? 'dark' : 'light');
       url.pathname = 'embedded';
 
       return (
@@ -179,6 +179,30 @@ export default function Pre({
     if (snack === 'link') {
       return link;
     }
+
+    // For rendering the code snippet, remove snack-only lines
+    const lines = code.split('\n');
+
+    let content = '';
+    let snackOnly = false;
+
+    for (const line of lines) {
+      if (line.trim() === '// snack-only-start') {
+        snackOnly = true;
+      } else if (line.trim() === '// snack-only-end') {
+        snackOnly = false;
+
+        // Remove multiple new lines from the last content
+        content = content.trim() + '\n';
+      } else if (!snackOnly) {
+        content += line + '\n';
+      }
+    }
+
+    content = content.trim();
+    children = React.Children.map(children, (child) =>
+      React.cloneElement(child, { children: content })
+    );
 
     return (
       <>
