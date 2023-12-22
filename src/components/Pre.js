@@ -1,3 +1,4 @@
+import { useColorMode } from '@docusaurus/theme-common';
 import MDXPre from '@theme-original/MDXComponents/Pre';
 import CodeBlock from '@theme-original/CodeBlock';
 import React from 'react';
@@ -60,14 +61,28 @@ export default function Pre({
   'data-dependencies': deps,
   ...rest
 }) {
+  const { colorMode } = useColorMode();
+
   if (snack) {
-    const code = React.Children.only(children).props.children.trim();
+    let code = React.Children.only(children).props.children;
 
     if (typeof code !== 'string') {
       throw new Error(
         'Playground code must be a string, but received ' + typeof code
       );
     }
+
+    // Remove highlight comments from code
+    code = code
+      .split('\n')
+      .filter((line) =>
+        [
+          '// highlight-start',
+          '// highlight-end',
+          '// highlight-next-line',
+        ].every((comment) => line.trim() !== comment)
+      )
+      .join('\n');
 
     const dependencies = deps
       ? Object.fromEntries(deps.split(',').map((entry) => entry.split('@')))
@@ -111,37 +126,64 @@ export default function Pre({
     url.searchParams.set('platform', 'web');
     url.searchParams.set('supportedPlatforms', 'ios,android,web');
     url.searchParams.set('preview', 'true');
+    url.searchParams.set('theme', colorMode === 'dark' ? 'dark' : 'light');
     url.searchParams.set('hideQueryParams', 'true');
+
+    if (snack === 'embed') {
+      url.pathname = 'embedded';
+
+      return (
+        <iframe
+          src={url.href}
+          style={{
+            width: '100%',
+            height: 660,
+            border: 'none',
+            border: '1px solid var(--ifm-table-border-color)',
+            borderRadius: 'var(--ifm-global-radius)',
+            overflow: 'hidden',
+          }}
+        />
+      );
+    }
+
+    const link = (
+      <a
+        className="snack-sample-link"
+        data-snack="true"
+        target="_blank"
+        href={url.href}
+      >
+        Try this example on Snack{' '}
+        <svg
+          width="14px"
+          height="14px"
+          viewBox="0 0 16 16"
+          style={{ verticalAlign: '-1px' }}
+        >
+          <g stroke="none" strokeWidth="1" fill="none">
+            <polyline
+              stroke="currentColor"
+              points="8.5 0.5 15.5 0.5 15.5 7.5"
+            />
+            <path d="M8,8 L15.0710678,0.928932188" stroke="currentColor" />
+            <polyline
+              stroke="currentColor"
+              points="9.06944444 3.5 1.5 3.5 1.5 14.5 12.5 14.5 12.5 6.93055556"
+            />
+          </g>
+        </svg>
+      </a>
+    );
+
+    if (snack === 'link') {
+      return link;
+    }
 
     return (
       <>
         <MDXPre {...rest}>{children}</MDXPre>
-        <a
-          className="snack-sample-link"
-          data-snack="true"
-          target="_blank"
-          href={url.href}
-        >
-          Try this example on Snack{' '}
-          <svg
-            width="14px"
-            height="14px"
-            viewBox="0 0 16 16"
-            style={{ verticalAlign: '-1px' }}
-          >
-            <g stroke="none" strokeWidth="1" fill="none">
-              <polyline
-                stroke="currentColor"
-                points="8.5 0.5 15.5 0.5 15.5 7.5"
-              />
-              <path d="M8,8 L15.0710678,0.928932188" stroke="currentColor" />
-              <polyline
-                stroke="currentColor"
-                points="9.06944444 3.5 1.5 3.5 1.5 14.5 12.5 14.5 12.5 6.93055556"
-              />
-            </g>
-          </svg>
-        </a>
+        {link}
       </>
     );
   }

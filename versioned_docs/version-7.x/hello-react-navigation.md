@@ -129,7 +129,7 @@ Let's add a second screen to our native stack navigator and configure the `Home`
 <Tabs groupId="config" queryString="config">
 <TabItem value="static" label="Static" default>
 
-```js {23} name="Native Stack Example" snack version=7
+```js name="Native Stack Example" snack version=7
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import { createStaticNavigation } from '@react-navigation/native';
@@ -152,6 +152,7 @@ function DetailsScreen() {
 }
 
 const RootStack = createNativeStackNavigator({
+  // highlight-next-line
   initialRouteName: 'Home',
   screens: {
     Home: HomeScreen,
@@ -171,7 +172,7 @@ Now our stack has two _routes_, a `Home` route and a `Details` route. A route ca
 </TabItem>
 <TabItem value="dynamic" label="Dynamic">
 
-```js {26} name="Native Stack Example" snack version=7
+```js name="Native Stack Example" snack version=7
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -197,6 +198,7 @@ const Stack = createNativeStackNavigator();
 
 function RootStack() {
   return (
+    // highlight-next-line
     <Stack.Navigator initialRouteName="Home">
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Details" component={DetailsScreen} />
@@ -235,11 +237,12 @@ Each screen in the navigator can specify some options for the navigator, such as
 
 To specify the options, we'll change how we have specified the screen component. Instead of specifying the screen component as the value, we can also specify an object with a `screen` property:
 
-```js {5}
+```js
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Home',
   screens: {
     Home: {
+      // highlight-next-line
       screen: HomeScreen,
     },
     Details: DetailsScreen,
@@ -251,9 +254,33 @@ This will let us specify additional options for the screen.
 
 Now, we can add an `options` property:
 
-```js {6-8}
+```js
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Home',
+  screens: {
+    Home: {
+      screen: HomeScreen,
+      // highlight-start
+      options: {
+        title: 'Overview',
+      },
+      // highlight-end
+    },
+    Details: DetailsScreen,
+  },
+});
+```
+
+Sometimes we will want to specify the same options for all of the screens in the navigator. For that, we can add a `screenOptions` property to the configuration:
+
+```js
+const RootStack = createNativeStackNavigator({
+  initialRouteName: 'Home',
+  // highlight-start
+  screenOptions: {
+    headerStyle: { backgroundColor: 'tomato' },
+  },
+  // highlight-end
   screens: {
     Home: {
       screen: HomeScreen,
@@ -266,24 +293,53 @@ const RootStack = createNativeStackNavigator({
 });
 ```
 
-Sometimes we will want to specify the same options for all of the screens in the navigator. For that, we can add a `screenOptions` property to the configuration:
+```js name="Options for Screens" snack="link" version=7
+import * as React from 'react';
+import { View, Text } from 'react-native';
+import { createStaticNavigation } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-```js {3-5}
+function HomeScreen() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>Home Screen</Text>
+    </View>
+  );
+}
+
+function DetailsScreen() {
+  return (
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>Details Screen</Text>
+    </View>
+  );
+}
+
 const RootStack = createNativeStackNavigator({
   initialRouteName: 'Home',
+  // highlight-start
   screenOptions: {
     headerStyle: { backgroundColor: 'tomato' },
   },
+  // highlight-end
   screens: {
     Home: {
       screen: HomeScreen,
+      // highlight-start
       options: {
         title: 'Overview',
       },
+      // highlight-end
     },
     Details: DetailsScreen,
   },
 });
+
+const Navigation = createStaticNavigation(RootStack);
+
+export default function App() {
+  return <Navigation />;
+}
 ```
 
 </TabItem>
@@ -293,22 +349,25 @@ Any customization options can be passed in the `options` prop for each screen co
 
 <samp id="hello-react-navigation-with-options" />
 
-```js {4}
+```js
 <Stack.Screen
   name="Home"
   component={HomeScreen}
+  // highlight-next-line
   options={{ title: 'Overview' }}
 />
 ```
 
 Sometimes we will want to specify the same options for all of the screens in the navigator. For that, we can pass a `screenOptions` prop to the navigator:
 
-```js {3-5}
+```js
 <Stack.Navigator
   initialRouteName="Home"
+  // highlight-start
   screenOptions={{
     headerStyle: { backgroundColor: 'tomato' },
   }}
+  // highlight-end
 >
   <Stack.Screen
     name="Home"
@@ -319,9 +378,7 @@ Sometimes we will want to specify the same options for all of the screens in the
 </Stack.Navigator>
 ```
 
-Putting it all together, we can specify the options for the `Home` screen in the `screenOptions` prop, and the options for the `Details` screen in the `options` prop:
-
-```js {28-30,35} name="Options for Screens" snack version=7
+```js name="Options for Screens" snack="link" version=7
 import * as React from 'react';
 import { View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -349,13 +406,16 @@ function RootStack() {
   return (
     <Stack.Navigator
       initialRouteName="Home"
+      // highlight-start
       screenOptions={{
         headerStyle: { backgroundColor: 'tomato' },
       }}
+      // highlight-end
     >
       <Stack.Screen
         name="Home"
         component={HomeScreen}
+        // highlight-next-line
         options={{ title: 'Overview' }}
       />
       <Stack.Screen name="Details" component={DetailsScreen} />
@@ -390,8 +450,9 @@ Sometimes we might want to pass additional props to a screen. We can do that wit
 1. Use [React context](https://reactjs.org/docs/context.html) and wrap the navigator with a context provider to pass data to the screens (recommended).
 2. Use a render callback for the screen instead of specifying a `component` prop:
 
-   ```js {2}
+   ```js
    <Stack.Screen name="Home">
+     // highlight-next-line
      {(props) => <HomeScreen {...props} extraData={someData} />}
    </Stack.Screen>
    ```

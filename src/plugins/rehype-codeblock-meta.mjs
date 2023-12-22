@@ -59,9 +59,6 @@ export default function rehypeCodeblockMeta(options) {
             })
           ) {
             Object.assign(node.properties, attributes);
-
-            // node.tagName = options.element || 'pre';
-            // node.children = codeblock.children;
           }
         }
       }
